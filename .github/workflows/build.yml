@@ -4,19 +4,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.3'
+          flutter-version: '3.29.3'
+          channel: 'stable'
       - name: Install flet
         run: pip install flet
       - name: Build APK
-        run: flet build apk
+        run: |
+          echo "y" | flet build apk --verbose
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: build/*.apk
+          path: build/apk
