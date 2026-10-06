@@ -1,0 +1,13 @@
+[project]
+name = "fastsaver"
+version = "1.0.0"
+description = "Fast video saver"
+requires-python = "==3.12.*"
+dependencies = [
+    "flet"
+]
+
+[tool.flet]
+product = "Fast Video Saver"
+company = "Sandile"
+bundle-id = "com.sandile.fastsaver"
