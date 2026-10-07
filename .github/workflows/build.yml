@@ -12,10 +12,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install deps for Flet doctor
+        run: sudo apt-get install -y mesa-utils
       - name: Install Flet
         run: |
           pip install --upgrade pip
           pip install flet
+      - name: Accept licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       - name: Build APK
         run: flet build apk --yes --no-rich-output
       - name: Upload APK
