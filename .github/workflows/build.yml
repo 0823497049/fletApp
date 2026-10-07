@@ -16,16 +16,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Linux deps for Flet doctor
+      - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev mesa-utils
+          sudo apt-get install -y libgtk-3-dev mesa-utils mpv libmpv-dev
 
       - name: Build APK
         run: |
           pip install --upgrade pip
           pip install flet
-          flet build apk --verbose
+          yes "" | flet build apk --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
