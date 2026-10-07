@@ -1,6 +1,5 @@
 name: Build APK
 on: [push]
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,20 +13,34 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev mesa-utils mpv libmpv-dev
+          sudo apt-get install -y libgtk-3-dev mesa-utils libmpv-dev mpv
 
-      - name: Build APK
+      - name: Install Flet
         run: |
           pip install --upgrade pip
           pip install flet
-          yes "" | flet build apk --verbose
+
+      - name: Accept Android licenses
+        run: |
+          FLUTTER_BIN="/home/runner/flutter/3.44.8/bin/flutter"
+          if [ -f "$FLUTTER_BIN" ]; then
+            yes | $FLUTTER_BIN doctor --android-licenses || true
+          fi
+          # Also try with sdkmanager
+          yes | sdkmanager --licenses || true
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Build APK
+        run: |
+          flet build apk --verbose --no-rich-output
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: apk
