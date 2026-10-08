@@ -1,49 +1,50 @@
 import flet as ft
 
 def main(page: ft.Page):
-    page.bgcolor = "#0A0A0A"
-    page.scroll = ft.ScrollMode.AUTO
-    
-    status = ft.Text("", size=16, color="#00FF00", weight="bold")
+    page.title = "FastSaver - Durban Hustle"
+    page.bgcolor = "#f5f5f5"
+    page.theme_mode = ft.ThemeMode.LIGHT
 
-    def get_item(e, title):
-        status.value = f"✅ YOU CLICKED: {title}\n📞 Call: 082 349 7049\n💰 From R10 - Less than R1000"
-        page.update()
-
-    def cheap_card(title, desc, price, icon):
+    def make_card(title, sub, price):
         return ft.Container(
-            bgcolor="#1A1A1A",
-            padding=15,
-            margin=ft.Margin(15, 0, 15, 10),
-            border_radius=10,
-            on_click=lambda e: get_item(e, title),
-            content=ft.Row([
-                ft.Text(icon, size=30),
-                ft.Column([
-                    ft.Text(title, weight="bold", color="white"),
-                    ft.Text(desc, size=12, color="grey"),
-                    ft.Text("📍 New Germany | Pinetown | Durban | PMB", size=11, color="#FFD700"),
-                    ft.Text(f"{price} 📞 082 349 7049", size=12, color="#00FF00", weight="bold"),
-                ], expand=True)
-            ])
+            content=ft.Column([
+                ft.Container(
+                    height=100,
+                    bgcolor="#e0e0e0",
+                    content=ft.Icon(ft.icons.SHOPPING_BAG, size=40, color="grey"),
+                    alignment=ft.alignment.center,
+                    border_radius=8
+                ),
+                ft.Text(title, weight="bold", size=14, color="black"),
+                ft.Text(sub, size=12, color="grey"),
+                ft.Text(price, weight="bold", color="green", size=14),
+                ft.ElevatedButton("View", bgcolor="#00c853", color="white")
+            ], spacing=6),
+            padding=12,
+            bgcolor="white",
+            border_radius=12,
+            width=170,
+            shadow=ft.BoxShadow(blur_radius=4, color="#33000000")
         )
 
-    header = ft.Container(
-        bgcolor="#FFD700",
+    top_banner = ft.Container(
+        content=ft.Text("Durban Hustle Marketplace", size=20, weight="bold", color="white"),
+        bgcolor="#00c853",
         padding=20,
-        content=ft.Text("CHEAP KASI\n💰 From R10 - Less than R1000\nNew Germany | Pinetown | Durban | PMB\n📞 082 349 7049", size=18, weight="bold", color="black")
+        border_radius=12
     )
 
-    page.add(
-        header,
-        ft.Container(padding=10, content=status, bgcolor="black"),
-        cheap_card("Male & Female Clothes - All Sizes", "Men, Women, Kids - All sizes", "From R10", "👕"),
-        cheap_card("Toiletries - Soap & Lotion", "New, unopened", "From R15", "🧴"),
-        cheap_card("All Kinds of Cereal & Food", "Rice, Maize, Cereal, Tinned food", "From R20", "🥣"),
-        cheap_card("Sofa 2 seater", "Good condition", "R800 - Less than R1000", "🛋️"),
-        cheap_card("Kids School Shoes", "All sizes", "From R50", "👟"),
-        cheap_card("Haircuts for Kids", "Sunday special", "From R30", "💈"),
-        cheap_card("Plastic Chairs x4", "Party chairs", "From R100", "🪑"),
-    )
+    row1 = ft.Row([make_card("Toiletries", "Soap & Lotion", "R49"), make_card("Cereal", "All Kinds Food", "R35")], scroll="auto")
+    row2 = ft.Row([make_card("Sofa 2 seater", "Comfortable", "R2500"), make_card("Maize Meal", "10kg Bag", "R120")], scroll="auto")
 
-ft.run(main)
+    main_col = ft.Column([
+        top_banner,
+        ft.Text("Today's Deals", size=18, weight="bold", color="black"),
+        row1,
+        row2,
+        ft.Text("App fixed! No more black screen", color="black")
+    ], spacing=15, scroll="auto", expand=True)
+
+    page.add(main_col)
+
+ft.app(target=main)
