@@ -12,16 +12,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install Flet deps (fast, no update)
-        run: sudo apt-get install -y libgtk-3-dev mesa-utils
+
+      - name: Fix apt mirrors and install deps
+        run: |
+          sudo rm -f /etc/apt/apt-mirrors.txt
+          sudo sed -i 's|http://azure.archive.ubuntu.com|http://archive.ubuntu.com|g' /etc/apt/sources.list || true
+          sudo apt-get update -y
+          sudo apt-get install -y libgtk-3-dev mesa-utils
+
       - name: Install Flet
         run: |
           pip install --upgrade pip
           pip install flet
+
       - name: Accept licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Build APK
         run: flet build apk --yes --verbose
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
