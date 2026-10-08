@@ -8,7 +8,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '17'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -19,13 +19,16 @@ jobs:
       - name: Install Flet
         run: |
           pip install --upgrade pip
-          pip install flet
+          pip install "flet==0.28.3"
       - name: Accept licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-      - name: Clean old build
-        run: rm -rf build/
+      - name: Clean old build + FIX jni bug
+        run: |
+          rm -rf build/
+          rm -rf ~/.pub-cache/hosted/pub.dev/jni-*
+          rm -rf ~/.pub-cache/hosted/pub.dev/jni_flutter-*
       - name: Build APK
-        run: flet build apk --yes --verbose
+        run: flet build apk --verbose
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
