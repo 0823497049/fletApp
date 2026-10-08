@@ -8,10 +8,10 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
       - name: Install Flet deps
         run: |
           sudo apt-get update -y
@@ -22,13 +22,11 @@ jobs:
           pip install flet
       - name: Accept licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-      - name: Build APK (show gradle error)
-        run: flet build apk --yes --verbose 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
-      - name: Show log on failure
-        if: failure()
-        run: cat build.log | tail -n 300
+      - name: Clean old build
+        run: rm -rf build/
+      - name: Build APK
+        run: flet build apk --yes --verbose
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: FastSaver-APK
