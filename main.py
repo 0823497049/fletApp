@@ -35,5 +35,3 @@ def main(page: ft.Page):
             ft.Row([make_card("Sofa","Comfortable","R2500"), make_card("Maize","10kg","R120")], scroll=ft.ScrollMode.AUTO),
         ], spacing=15, scroll=ft.ScrollMode.AUTO, expand=True)
     )
-
-ft.app(target=main)
