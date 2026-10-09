@@ -2,36 +2,73 @@ import flet as ft
 
 def main(page: ft.Page):
     page.title = "FastSaver"
-    page.bgcolor = "#f5f5f5"
-    page.theme_mode = ft.ThemeMode.LIGHT
-    page.vertical_alignment = ft.MainAxisAlignment.START
+    page.bgcolor = ft.Colors.WHITE
+    page.scroll = "auto"
     
-    def make_card(title, sub, price):
-        return ft.Container(
-            content=ft.Column([
-                ft.Icon(ft.Icons.SHOPPING_BAG, size=40, color="grey"),
-                ft.Text(title, weight=ft.FontWeight.BOLD, size=14, color="black"),
-                ft.Text(sub, size=12, color="grey"),
-                ft.Text(price, weight=ft.FontWeight.BOLD, color="green", size=14),
-            ], spacing=5),
-            padding=12,
-            bgcolor="white",
-            border_radius=12,
-            width=170,
-        )
-
-    top = ft.Container(
-        content=ft.Text("Durban Hustle Marketplace", size=20, weight=ft.FontWeight.BOLD, color="white"),
-        bgcolor="#00C853",
-        padding=20,
-        border_radius=12,
+    page.appbar = ft.AppBar(
+        title=ft.Text("FastSaver Marketplace", color=ft.Colors.WHITE),
+        bgcolor=ft.Colors.BLUE_700,
     )
-
+    
+    url_input = ft.TextField(
+        label="Paste Instagram/TikTok Link",
+        border_radius=10,
+        prefix_icon=ft.Icons.LINK,
+    )
+    
+    status = ft.Text("Ready to download", color=ft.Colors.GREY)
+    
+    def download_click(e):
+        if not url_input.value:
+            status.value = "Please paste a link!"
+            status.color = ft.Colors.RED
+            page.update()
+            return
+        status.value = f"Downloading: {url_input.value[:30]}..."
+        status.color = ft.Colors.BLUE
+        page.update()
+        # Add your download logic here
+    
+    download_btn = ft.ElevatedButton(
+        "DOWNLOAD NOW",
+        icon=ft.Icons.DOWNLOAD,
+        bgcolor=ft.Colors.BLUE_700,
+        color=ft.Colors.WHITE,
+        on_click=download_click,
+        width=300,
+        height=50,
+    )
+    
+    marketplace = ft.Column([
+        ft.Text("🔥 Trending Templates", size=20, weight="bold"),
+        ft.Row([
+            ft.Card(content=ft.Container(
+                content=ft.Column([
+                    ft.Icon(ft.Icons.VIDEO_LIBRARY, size=40, color=ft.Colors.BLUE),
+                    ft.Text("Viral Template 1"),
+                    ft.Text("R100", weight="bold", color=ft.Colors.GREEN),
+                ], alignment=ft.MainAxisAlignment.CENTER),
+                padding=20, width=150, height=150
+            )),
+            ft.Card(content=ft.Container(
+                content=ft.Column([
+                    ft.Icon(ft.Icons.VIDEO_LIBRARY, size=40, color=ft.Colors.PURPLE),
+                    ft.Text("Viral Template 2"),
+                    ft.Text("R250", weight="bold", color=ft.Colors.GREEN),
+                ], alignment=ft.MainAxisAlignment.CENTER),
+                padding=20, width=150, height=150
+            )),
+        ], scroll="auto")
+    ])
+    
     page.add(
         ft.Column([
-            top,
-            ft.Text("Today's Deals", size=18, weight=ft.FontWeight.BOLD, color="black"),
-            ft.Row([make_card("Toiletries","Soap & Lotion","R49"), make_card("Cereal","Food","R35")], scroll=ft.ScrollMode.AUTO),
-            ft.Row([make_card("Sofa","Comfortable","R2500"), make_card("Maize","10kg","R120")], scroll=ft.ScrollMode.AUTO),
-        ], spacing=15, scroll=ft.ScrollMode.AUTO, expand=True)
+            url_input,
+            download_btn,
+            status,
+            ft.Divider(),
+            marketplace,
+        ], spacing=20, alignment=ft.MainAxisAlignment.CENTER)
     )
+
+ft.app(target=main)
