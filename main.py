@@ -48,5 +48,3 @@ def main(page: ft.Page):
             marketplace
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=15)
     )
-
-ft.app(target=main)
