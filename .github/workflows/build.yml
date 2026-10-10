@@ -1,34 +1,28 @@
 name: Build APK
+
 on: [push]
+
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          distribution: 'zulu'
-          java-version: '17'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install Flet deps
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y libgtk-3-dev mesa-utils libmpv-dev mpv
+          python-version: '3.11'
+
       - name: Install Flet
         run: |
-          pip install --upgrade pip
-          pip install "flet==0.28.3"
-      - name: Accept licenses
-        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-      - name: Clean old build + FIX jni bug
-        run: |
-          rm -rf build/
-          rm -rf ~/.pub-cache/hosted/pub.dev/jni-*
-          rm -rf ~/.pub-cache/hosted/pub.dev/jni_flutter-*
+          pip install flet==0.28.3
+
       - name: Build APK
-        run: flet build apk --verbose
+        run: |
+          flet build apk --verbose
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
