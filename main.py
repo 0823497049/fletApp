@@ -1,8 +1,7 @@
 import flet as ft
-import yt_dlp
+import requests
 import os
 import threading
-import requests
 
 def main(page: ft.Page):
     page.title = "FastSaver"
@@ -15,64 +14,55 @@ def main(page: ft.Page):
     status = ft.Text("", size=14, color=ft.Colors.GREEN)
     progress = ft.ProgressBar(width=320, visible=False)
 
-    def download_with_backup(link):
-        download_path = "/storage/emulated/0/Download"
-        if not os.path.exists(download_path):
-            download_path = "/tmp"
-
-        # TRY 1: yt-dlp
+    def download_task(link):
         try:
-            status.value = "Trying direct download..."
+            status.value = "Connecting to Cobalt server..."
+            status.color = ft.Colors.YELLOW
             progress.visible = True
             page.update()
 
-            ydl_opts = {
-                'outtmpl': f'{download_path}/FastSaver_%(title)s.%(ext)s',
-                'format': 'mp4',
-                'noplaylist': True,
-                'quiet': True,
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([link])
+            download_path = "/storage/emulated/0/Download"
+            if not os.path.exists(download_path):
+                download_path = "/tmp"
 
-            status.value = "✅ Saved to Download folder!"
+            # COBALT API - works when TikTok blocks yt-dlp
+            api_url = "https://api.cobalt.tools/api/json"
+            headers = {"Accept": "application/json", "Content-Type": "application/json"}
+            payload = {"url": link}
+
+            r = requests.post(api_url, json=payload, headers=headers, timeout=20)
+            data = r.json()
+            print(f"Cobalt response: {data}")
+
+            video_url = data.get("url") or data.get("data", {}).get("url")
+
+            # Sometimes cobalt returns picker
+            if not video_url and data.get("picker"):
+                video_url = data["picker"][0].get("url")
+
+            if not video_url:
+                raise Exception(f"No video url: {data}")
+
+            status.value = "Downloading video..."
+            page.update()
+
+            # Download video file
+            video_resp = requests.get(video_url, stream=True, timeout=30)
+            file_name = f"FastSaver_{os.urandom(4).hex()}.mp4"
+            file_path = os.path.join(download_path, file_name)
+
+            with open(file_path, "wb") as f:
+                for chunk in video_resp.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+
+            status.value = f"✅ Saved! {file_name}"
             status.color = ft.Colors.GREEN
             progress.visible = False
             page.update()
-            return
+
         except Exception as e:
-            print(f"yt-dlp failed: {e}")
-
-        # TRY 2: TikWM API Backup for TikTok
-        try:
-            status.value = "TikTok blocked, trying backup server..."
-            page.update()
-
-            api_url = "https://www.tikwm.com/api/"
-            data = {"url": link, "count": 12, "cursor": 0, "web": 1, "hd": 1}
-            r = requests.post(api_url, data=data, timeout=20)
-            res = r.json()
-
-            if res.get("data") and res["data"].get("play"):
-                video_url = res["data"]["play"]
-                title = res["data"].get("title", "tiktok_video")[:30]
-
-                # Download video file
-                video_data = requests.get(video_url, timeout=30).content
-                file_path = f"{download_path}/FastSaver_{title}.mp4"
-                with open(file_path, "wb") as f:
-                    f.write(video_data)
-
-                status.value = "✅ Saved via backup server!"
-                status.color = ft.Colors.GREEN
-                progress.visible = False
-                page.update()
-                return
-            else:
-                raise Exception("Backup server no link")
-
-        except Exception as e2:
-            status.value = f"❌ Both failed: TikTok blocking. Try another link!"
+            status.value = f"❌ Error: {str(e)[:120]}"
             status.color = ft.Colors.RED
             progress.visible = False
             page.update()
@@ -84,7 +74,7 @@ def main(page: ft.Page):
             status.color = ft.Colors.RED
             page.update()
             return
-        threading.Thread(target=download_with_backup, args=(link,), daemon=True).start()
+        threading.Thread(target=download_task, args=(link,), daemon=True).start()
 
     page.add(
         ft.Text("FastSaver", size=32, weight=ft.FontWeight.BOLD),
