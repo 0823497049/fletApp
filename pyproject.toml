@@ -1,7 +1,11 @@
 [project]
 name = "fastsaver"
 version = "1.0.0"
-dependencies = ["flet==0.27.6"]
+description = "FastSaver App"
+dependencies = ["flet==0.28.3"]
 requires-python = ">=3.9"
 
 [tool.flet]
+org = "com.fastsaver"
+product = "FastSaver"
+company = "FastSaver"
